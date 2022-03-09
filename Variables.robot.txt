@@ -1,0 +1,7 @@
+*** Variables ***
+
+#${timeout} 1s
+${base_url} https://reqres.in/api
+${headers}  Content-Type=application/json Authorization=Basic
+${Newemail} michael.lawson@reqres.com 
+${NewPassword} password123	

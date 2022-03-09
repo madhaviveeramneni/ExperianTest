@@ -1,0 +1,54 @@
+*** Settings ***
+Library RequestsLibrary
+Library Collections
+Library HttpLibrary.HTTP
+Library Json
+Resource ../variables.robot
+Suite Teardown Close Session
+
+
+*** Test Cases ***
+#Scenario-1
+  
+  Create Session alias=mysession  ${Base URL} headers=${headers} 
+  ${response}=  GET On Session  mysession  /users/
+  should be equal as integers  ${response.status_code}  200
+  log to console ${response.status_code}
+  log to console ${response.content}
+  #Verify response header
+  ${getHeaderValue}=  Get From Dictionary  ${response.headers}  Content-Type
+  Should be equal  ${getHeaderValue}  application/json; charset=utf-8
+  
+#Scenario-2
+ 
+  Create Session alias=mysession  ${Base URL} headers=${headers} 
+  ${response}=  GET On Session  mysession  /users/2/
+  should be equal as integers  ${response.status_code}  200
+  log to console ${response.status_code}
+  log to console ${response.content}
+
+#Scenario-3
+
+  Create Session alias=mysession  ${Base URL} headers=${headers} 
+  ${response}=  GET On Session  mysession  /users/23/
+  should be equal as integers  ${response.status_code}  404
+  log to console ${response.status_code}
+  log to console ${response.content}
+
+#Scenario-4
+
+  Create Session alias=mysession  ${Base URL} headers=${headers} 
+  &{body}=  Create Dictionary email={Newemail} Password={NewPassword}
+  ${response}=  POST On Session  mysession  /register/ data=${body}
+  should be equal as integers  ${response.status_code}  201
+  log to console ${response.status_code}
+  ${result_json}= Parse Json    ${result_text}
+  log to console ${result_json}
+#Verify newly registered user
+  ${id}=  Get Value From Json  ${response.json()}  id
+  ${response}=  GET On Session  mysession  /users/${id}/
+  should be equal as integers  ${response.status_code}  200
+  log to console ${response.status_code}
+  log to console ${response.content}
+
+  Close Session
